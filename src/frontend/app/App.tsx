@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import reactLogo from "./assets/react.svg";
+import reactLogo from "../assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 
@@ -52,6 +52,9 @@ function App() {
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
+      </p>
+      <p className="bg-red-500 underline underline-offset-1">
+        Tailwind instalado
       </p>
       <textarea
         name="message"
