@@ -5,6 +5,7 @@ import "./index.css";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { NotFoundPage } from "./not-found/NotFount.tsx";
+import { Poker } from "./poker/Poker.tsx";
 
 const router = createBrowserRouter([
   {
@@ -12,10 +13,15 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <NotFoundPage />,
   },
+  {
+    path: "/poker",
+    element: <Poker />,
+    errorElement: <NotFoundPage />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <RouterProvider router={router} />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
