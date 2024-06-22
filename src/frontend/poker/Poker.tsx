@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { getSocket } from "../utils/socket";
 
 type player = {
   player: string;
@@ -9,12 +10,28 @@ type gameState = player & {
   card: number | null;
 };
 
+const socket = getSocket({
+  path: "/poker/",
+});
+
 export function Poker() {
   const [player, setPlayer] = useState<player>({ player: "Testerson", id: 1 });
   const [game, setGame] = useState<gameState[]>([
     { player: "testerson", id: 1, card: 1 },
     { player: "Zé", id: 2, card: 3 },
   ]);
+
+  useEffect(() => {
+    function onEnterRoom(data: []) {
+      console.log("data: ", data);
+    }
+
+    socket.on("enter", onEnterRoom);
+
+    return () => {
+      socket.off("enter", onEnterRoom);
+    };
+  }, []);
 
   return (
     <div className="flex h-full flex-col gap-4 bg-slate-900 px-16 py-16">
