@@ -46,8 +46,7 @@ app.post("/entrar", (req, res) => {
 
   //TODO: fazer uma validação mais seria que isso
   if (!sala || !nome) {
-    res.statusCode = 412;
-    res.send("Dados invalidos para entrar");
+    res.send({ error: "Dados invalidos para entrar" });
   }
 
   let usuario = pseudoBancoUsuario.find(

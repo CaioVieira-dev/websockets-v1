@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getSocket } from "../utils/socket";
+import { useLocation } from "react-router-dom";
 
 type player = {
   player: string;
@@ -15,7 +16,11 @@ const socket = getSocket({
 });
 
 export function Poker() {
-  const [player, setPlayer] = useState<player>({ player: "Testerson", id: 1 });
+  const location = useLocation();
+  console.log("location: ", location);
+
+  const player = useMemo(() => location.state, [location]);
+
   const [game, setGame] = useState<gameState[]>([
     { player: "testerson", id: 1, card: 1 },
     { player: "Zé", id: 2, card: 3 },
@@ -26,28 +31,23 @@ export function Poker() {
       console.log("data: ", data);
     }
 
+    if (player) {
+      setGame((last) => [
+        ...last,
+        { player: player.nome, id: player.id, card: null },
+      ]);
+    }
     socket.on("enter", onEnterRoom);
 
     return () => {
       socket.off("enter", onEnterRoom);
     };
-  }, []);
+  }, [player]);
 
   return (
     <div className="flex h-full flex-col gap-4 bg-slate-900 px-16 py-16">
       <CardOptions game={game} setGame={setGame} player={player} />
       <Players player={player} game={game} setGame={setGame} />
-      <button
-        onClick={() =>
-          setPlayer((curr) =>
-            curr.id === 1
-              ? { player: "Zé", id: 2 }
-              : { player: "testerson", id: 1 },
-          )
-        }
-      >
-        troca player
-      </button>
     </div>
   );
 }
