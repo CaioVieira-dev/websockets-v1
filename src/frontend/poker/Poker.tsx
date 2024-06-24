@@ -2,13 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { getSocket } from "../utils/socket";
 import { useLocation } from "react-router-dom";
 
-type player = {
-  player: string;
+type jogador = {
+  nome: string;
   id: number;
 };
 
-type gameState = player & {
-  card: number | null;
+type gameState = jogador & {
+  carta: number | null;
 };
 
 const socket = getSocket({
@@ -17,37 +17,31 @@ const socket = getSocket({
 
 export function Poker() {
   const location = useLocation();
-  console.log("location: ", location);
-
-  const player = useMemo(() => location.state, [location]);
-
-  const [game, setGame] = useState<gameState[]>([
-    { player: "testerson", id: 1, card: 1 },
-    { player: "Zé", id: 2, card: 3 },
-  ]);
+  const jogador = useMemo(() => location.state, [location]);
+  const [game, setGame] = useState<gameState[]>([]);
 
   useEffect(() => {
-    function onEnterRoom(data: []) {
-      console.log("data: ", data);
+    function setCarta(data: []) {
+      setGame(data);
     }
 
-    if (player) {
-      setGame((last) => [
-        ...last,
-        { player: player.nome, id: player.id, card: null },
-      ]);
+    if (jogador) {
+      socket.connect();
     }
-    socket.on("enter", onEnterRoom);
+    socket.on("setCarta", setCarta);
 
     return () => {
-      socket.off("enter", onEnterRoom);
+      socket.off("setCarta", setCarta);
+      if (jogador) {
+        socket.disconnect();
+      }
     };
-  }, [player]);
+  }, [jogador]);
 
   return (
     <div className="flex h-full flex-col gap-4 bg-slate-900 px-16 py-16">
-      <CardOptions game={game} setGame={setGame} player={player} />
-      <Players player={player} game={game} setGame={setGame} />
+      <CardOptions jogador={jogador} />
+      <Players jogador={jogador} game={game} />
     </div>
   );
 }
@@ -77,30 +71,21 @@ function Card({ number, mini, selectCard }: CardProps) {
 }
 
 type CardOptionsProps = {
-  game: gameState[];
-  player: player;
-  setGame: React.Dispatch<React.SetStateAction<gameState[]>>;
+  jogador: jogador;
 };
 
 const possibleCards = [1, 2, 3, 5, 8, 13, 21];
 
-function CardOptions({ game, player, setGame }: CardOptionsProps) {
+function CardOptions({ jogador }: CardOptionsProps) {
   const selectCard = useCallback(
     (cardNumber: number) => {
-      const newGame = [];
-
-      for (const playerHand of game) {
-        const newPlayerHand = { ...playerHand };
-        if (playerHand?.id === player?.id) {
-          newPlayerHand.card = cardNumber;
-        }
-
-        newGame.push(newPlayerHand);
-      }
-
-      setGame(newGame);
+      socket.emit("setCarta", {
+        id: jogador.id,
+        nome: jogador.nome,
+        carta: cardNumber,
+      });
     },
-    [game, player?.id, setGame],
+    [jogador.id, jogador.nome],
   );
 
   return (
@@ -112,40 +97,35 @@ function CardOptions({ game, player, setGame }: CardOptionsProps) {
   );
 }
 
-type PlayersProps = CardOptionsProps;
+type PlayersProps = CardOptionsProps & { game: gameState[] };
 
-function Players({ game, player, setGame }: PlayersProps) {
+function Players({ game, jogador }: PlayersProps) {
   const resetPlayerHand = useCallback(() => {
-    const newGame = [];
+    socket.emit("setCarta", {
+      id: jogador.id,
+      nome: jogador.nome,
+      carta: null,
+    });
+  }, [jogador.id, jogador.nome]);
 
-    for (const playerHand of game) {
-      const newPlayerHand = { ...playerHand };
-      if (playerHand?.id === player?.id) {
-        newPlayerHand.card = null;
-      }
-
-      newGame.push(newPlayerHand);
-    }
-
-    setGame(newGame);
-  }, [game, player?.id, setGame]);
-
-  const currPlayer = game.find((playeHand) => playeHand.id === player.id);
-  const otherPlayers = game.filter((playerHand) => playerHand.id !== player.id);
+  const currPlayer = game.find((playeHand) => playeHand.id === jogador.id);
+  const otherPlayers = game.filter(
+    (playerHand) => playerHand.id !== jogador.id,
+  );
 
   return (
     <div className="flex h-full w-full flex-col gap-2 rounded-3xl bg-slate-300">
       <Player
-        name={currPlayer?.player || ""}
-        card={currPlayer?.card}
+        name={currPlayer?.nome || ""}
+        card={currPlayer?.carta}
         resetPlayerHand={resetPlayerHand}
       />
 
       {otherPlayers?.map?.((playerHand) => (
         <Player
-          name={playerHand.player}
+          name={playerHand.nome}
           key={`player-${playerHand.id}`}
-          card={playerHand.card}
+          card={playerHand.carta}
         />
       ))}
     </div>

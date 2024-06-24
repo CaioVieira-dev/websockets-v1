@@ -11,8 +11,8 @@ app.use(
 );
 app.use(express.json());
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  path: "/messages/",
+const pokerIo = new Server(httpServer, {
+  path: "/poker/",
   cors: {
     origin: "http://localhost:5173",
     methods: ["GET", "POST"],
@@ -21,63 +21,61 @@ const io = new Server(httpServer, {
 
 const port = 3000;
 
-interface Banco {
-  id: number;
-  message: string;
-  createdAt: Date;
-}
-
-const pseudoBanco: Banco[] = [];
-interface Usuario {
+interface UsuarioPoker {
   id: number;
   nome: string;
   sala: string;
+  carta?: number;
 }
 
-const pseudoBancoUsuario: Usuario[] = [];
-let id = 0;
-let idUsuario = 0;
+let pseudoBancoUsuarioPoker: UsuarioPoker[] = [];
+let idUsuarioPoker = 0;
 
 app.post("/entrar", (req, res) => {
   const { sala, nome } = req.body || {};
-
-  console.log("sala: ", sala);
-  console.log("nome: ", nome);
 
   //TODO: fazer uma validação mais seria que isso
   if (!sala || !nome) {
     res.send({ error: "Dados invalidos para entrar" });
   }
 
-  let usuario = pseudoBancoUsuario.find(
+  let usuario = pseudoBancoUsuarioPoker.find(
     ({ nome: nomeUsuario, sala: salaUsuario }) =>
       nomeUsuario === nome && salaUsuario === sala,
   );
 
   if (!usuario) {
     usuario = {
-      id: idUsuario,
+      id: idUsuarioPoker,
       nome,
       sala,
     };
-    idUsuario += 1;
-    pseudoBancoUsuario.push(usuario);
+    idUsuarioPoker += 1;
+    pseudoBancoUsuarioPoker.push(usuario);
   }
 
   return res.send(usuario);
 });
 
-io.on("connection", (socket) => {
-  socket.emit("enter", pseudoBanco);
+pokerIo.on("connection", (socket) => {
+  socket.emit("setCarta", pseudoBancoUsuarioPoker);
 
-  socket.on("message", (data) => {
-    console.log(data);
-    pseudoBanco.push({
-      message: data,
-      createdAt: new Date(),
-      id,
+  socket.on("setCarta", (dados) => {
+    const { id, nome, carta }: { id: number; nome: string; carta: number } =
+      dados;
+
+    const novoEstado = pseudoBancoUsuarioPoker.map((usuarioPoker) => {
+      if (usuarioPoker.id === id && usuarioPoker.nome === nome) {
+        return {
+          ...usuarioPoker,
+          carta,
+        };
+      }
+      return usuarioPoker;
     });
-    id += 1;
+
+    pseudoBancoUsuarioPoker = novoEstado;
+    pokerIo.emit("setCarta", pseudoBancoUsuarioPoker);
   });
 });
 
