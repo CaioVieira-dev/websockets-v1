@@ -77,6 +77,19 @@ pokerIo.on("connection", (socket) => {
     pseudoBancoUsuarioPoker = novoEstado;
     pokerIo.emit("setCarta", pseudoBancoUsuarioPoker);
   });
+  socket.on("limparTodasCartas", () => {
+    const novoEstado = pseudoBancoUsuarioPoker.map((usuarioPoker) => {
+      return {
+        id: usuarioPoker.id,
+        nome: usuarioPoker.nome,
+        sala: usuarioPoker.sala,
+      };
+    });
+
+    pseudoBancoUsuarioPoker = novoEstado;
+
+    pokerIo.emit("setCarta", pseudoBancoUsuarioPoker);
+  });
 });
 
 httpServer.listen(port, () => {

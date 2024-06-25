@@ -20,6 +20,10 @@ export function Poker() {
   const jogador = useMemo(() => location.state, [location]);
   const [game, setGame] = useState<gameState[]>([]);
 
+  const limparTodasCartas = useCallback(() => {
+    socket.emit("limparTodasCartas", () => {});
+  }, []);
+
   useEffect(() => {
     function setCarta(data: []) {
       setGame(data);
@@ -41,6 +45,17 @@ export function Poker() {
   return (
     <div className="flex h-full flex-col gap-4 bg-slate-900 px-16 py-16">
       <CardOptions jogador={jogador} />
+      <div className="flex w-full justify-end gap-2">
+        <div className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700">
+          Virar todos
+        </div>
+        <div
+          onClick={limparTodasCartas}
+          className="rounded-md bg-red-500 p-4 transition-colors hover:cursor-pointer hover:bg-red-800"
+        >
+          Remover todos
+        </div>
+      </div>
       <Players jogador={jogador} game={game} />
     </div>
   );
@@ -59,7 +74,7 @@ function Card({ number, mini, selectCard }: CardProps) {
   return (
     <div
       onClick={() => selectCard?.(number)}
-      className={`flex ${mini ? "h-20 w-12" : "h-60 w-2/12"} items-center justify-center rounded-lg bg-slate-300 hover:cursor-pointer hover:bg-slate-400`}
+      className={`flex transition-colors ${mini ? "h-20 w-12" : "h-60 w-2/12"} items-center justify-center rounded-lg bg-slate-300 hover:cursor-pointer hover:bg-slate-400`}
     >
       <p
         className={`font-sans ${mini ? "text-[3rem] leading-[2rem]" : "text-[7rem] leading-[6rem]"}`}
@@ -113,6 +128,7 @@ function Players({ game, jogador }: PlayersProps) {
     (playerHand) => playerHand.id !== jogador.id,
   );
 
+  //TODO: ajeitar a cor, porque no hover a carta ta sumindo
   return (
     <div className="flex h-full w-full flex-col gap-2 rounded-3xl bg-slate-300">
       <Player
