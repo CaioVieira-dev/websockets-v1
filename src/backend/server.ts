@@ -30,6 +30,7 @@ interface UsuarioPoker {
 
 let pseudoBancoUsuarioPoker: UsuarioPoker[] = [];
 let idUsuarioPoker = 0;
+let cartasAbertas = false;
 
 app.post("/entrar", (req, res) => {
   const { sala, nome } = req.body || {};
@@ -59,6 +60,7 @@ app.post("/entrar", (req, res) => {
 
 pokerIo.on("connection", (socket) => {
   socket.emit("setCarta", pseudoBancoUsuarioPoker);
+  pokerIo.emit("setCartasAbertas", cartasAbertas);
 
   socket.on("setCarta", (dados) => {
     const { id, nome, carta }: { id: number; nome: string; carta: number } =
@@ -87,8 +89,15 @@ pokerIo.on("connection", (socket) => {
     });
 
     pseudoBancoUsuarioPoker = novoEstado;
+    cartasAbertas = false;
 
     pokerIo.emit("setCarta", pseudoBancoUsuarioPoker);
+    pokerIo.emit("setCartasAbertas", cartasAbertas);
+  });
+
+  socket.on("toggleAbrirCartas", () => {
+    cartasAbertas = !cartasAbertas;
+    pokerIo.emit("setCartasAbertas", cartasAbertas);
   });
 });
 

@@ -19,23 +19,32 @@ export function Poker() {
   const location = useLocation();
   const jogador = useMemo(() => location.state, [location]);
   const [game, setGame] = useState<gameState[]>([]);
+  const [cartasAbertas, setCartasAbertas] = useState(false);
 
   const limparTodasCartas = useCallback(() => {
-    socket.emit("limparTodasCartas", () => {});
+    socket.emit("limparTodasCartas");
+  }, []);
+  const toggleCartasAbertas = useCallback(() => {
+    socket.emit("toggleAbrirCartas");
   }, []);
 
   useEffect(() => {
     function setCarta(data: []) {
       setGame(data);
     }
+    function _setCartasAbertas(data: boolean) {
+      setCartasAbertas(data);
+    }
 
     if (jogador) {
       socket.connect();
     }
     socket.on("setCarta", setCarta);
+    socket.on("setCartasAbertas", _setCartasAbertas);
 
     return () => {
       socket.off("setCarta", setCarta);
+      socket.off("setCartasAbertas", _setCartasAbertas);
       if (jogador) {
         socket.disconnect();
       }
@@ -46,7 +55,10 @@ export function Poker() {
     <div className="flex h-full flex-col gap-4 bg-slate-900 px-16 py-16">
       <CardOptions jogador={jogador} />
       <div className="flex w-full justify-end gap-2">
-        <div className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700">
+        <div
+          onClick={toggleCartasAbertas}
+          className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
+        >
           Virar todos
         </div>
         <div
@@ -56,7 +68,7 @@ export function Poker() {
           Remover todos
         </div>
       </div>
-      <Players jogador={jogador} game={game} />
+      <Players jogador={jogador} game={game} cartasAbertas={cartasAbertas} />
     </div>
   );
 }
@@ -65,8 +77,9 @@ type CardProps = {
   number: number | null;
   mini?: boolean;
   selectCard?: (cardNumber: number) => void;
+  cartasAbertas?: boolean;
 };
-function Card({ number, mini, selectCard }: CardProps) {
+function Card({ number, mini, selectCard, cartasAbertas = true }: CardProps) {
   if (!number) {
     return null;
   }
@@ -79,7 +92,7 @@ function Card({ number, mini, selectCard }: CardProps) {
       <p
         className={`font-sans ${mini ? "text-[3rem] leading-[2rem]" : "text-[7rem] leading-[6rem]"}`}
       >
-        {number}
+        {cartasAbertas && number}
       </p>
     </div>
   );
@@ -112,9 +125,12 @@ function CardOptions({ jogador }: CardOptionsProps) {
   );
 }
 
-type PlayersProps = CardOptionsProps & { game: gameState[] };
+type PlayersProps = CardOptionsProps & {
+  game: gameState[];
+  cartasAbertas: boolean;
+};
 
-function Players({ game, jogador }: PlayersProps) {
+function Players({ game, jogador, cartasAbertas }: PlayersProps) {
   const resetPlayerHand = useCallback(() => {
     socket.emit("setCarta", {
       id: jogador.id,
@@ -135,6 +151,7 @@ function Players({ game, jogador }: PlayersProps) {
         name={currPlayer?.nome || ""}
         card={currPlayer?.carta}
         resetPlayerHand={resetPlayerHand}
+        cartasAbertas={cartasAbertas}
       />
 
       {otherPlayers?.map?.((playerHand) => (
@@ -142,6 +159,7 @@ function Players({ game, jogador }: PlayersProps) {
           name={playerHand.nome}
           key={`player-${playerHand.id}`}
           card={playerHand.carta}
+          cartasAbertas={cartasAbertas}
         />
       ))}
     </div>
@@ -152,14 +170,15 @@ type PlayerProps = {
   name: string;
   card?: number | null;
   resetPlayerHand?: () => void;
+  cartasAbertas: boolean;
 };
 
-function Player({ name, card, resetPlayerHand }: PlayerProps) {
+function Player({ name, card, resetPlayerHand, cartasAbertas }: PlayerProps) {
   return (
     <div className="flex w-full items-center gap-2 rounded-xl bg-slate-400 py-8">
       <p className="px-2 text-3xl">{name}</p>
       <div className="" onClick={resetPlayerHand}>
-        <Card number={card || 0} mini />
+        <Card number={card || 0} mini cartasAbertas={cartasAbertas} />
       </div>
     </div>
   );
