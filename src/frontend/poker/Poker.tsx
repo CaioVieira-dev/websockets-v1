@@ -21,13 +21,6 @@ export function Poker() {
   const [game, setGame] = useState<gameState[]>([]);
   const [cartasAbertas, setCartasAbertas] = useState(false);
 
-  const limparTodasCartas = useCallback(() => {
-    socket.emit("limparTodasCartas");
-  }, []);
-  const toggleCartasAbertas = useCallback(() => {
-    socket.emit("toggleAbrirCartas");
-  }, []);
-
   useEffect(() => {
     function setCarta(data: []) {
       setGame(data);
@@ -54,20 +47,7 @@ export function Poker() {
   return (
     <div className="flex h-full flex-col gap-4 bg-slate-900 px-16 py-16">
       <CardOptions jogador={jogador} />
-      <div className="flex w-full justify-end gap-2">
-        <div
-          onClick={toggleCartasAbertas}
-          className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
-        >
-          Virar todos
-        </div>
-        <div
-          onClick={limparTodasCartas}
-          className="rounded-md bg-red-500 p-4 transition-colors hover:cursor-pointer hover:bg-red-800"
-        >
-          Remover todos
-        </div>
-      </div>
+      <Configuracoes />
       <Players jogador={jogador} game={game} cartasAbertas={cartasAbertas} />
     </div>
   );
@@ -179,6 +159,44 @@ function Player({ name, card, resetPlayerHand, cartasAbertas }: PlayerProps) {
       <p className="px-2 text-3xl">{name}</p>
       <div className="" onClick={resetPlayerHand}>
         <Card number={card || 0} mini cartasAbertas={cartasAbertas} />
+      </div>
+    </div>
+  );
+}
+
+function Configuracoes() {
+  const limparTodasCartas = useCallback(() => {
+    socket.emit("limparTodasCartas");
+  }, []);
+  const toggleCartasAbertas = useCallback(() => {
+    socket.emit("toggleAbrirCartas");
+  }, []);
+
+  return (
+    <div className="flex w-full justify-between gap-2">
+      <div
+        onClick={() => {}}
+        className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
+      >
+        Remover jogadores
+      </div>
+      <div
+        onClick={() => {}}
+        className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
+      >
+        Configurar cartas
+      </div>
+      <div
+        onClick={toggleCartasAbertas}
+        className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
+      >
+        Virar todos
+      </div>
+      <div
+        onClick={limparTodasCartas}
+        className="rounded-md bg-red-500 p-4 transition-colors hover:cursor-pointer hover:bg-red-800"
+      >
+        Remover todos
       </div>
     </div>
   );
