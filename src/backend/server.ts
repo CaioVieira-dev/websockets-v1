@@ -59,6 +59,7 @@ app.post("/entrar", (req, res) => {
 });
 
 pokerIo.on("connection", (socket) => {
+  //TODO: corrigir problema onde ao entrar jogadores antigos não veem o novo
   socket.emit("setCarta", pseudoBancoUsuarioPoker);
   pokerIo.emit("setCartasAbertas", cartasAbertas);
 
@@ -98,6 +99,13 @@ pokerIo.on("connection", (socket) => {
   socket.on("toggleAbrirCartas", () => {
     cartasAbertas = !cartasAbertas;
     pokerIo.emit("setCartasAbertas", cartasAbertas);
+  });
+
+  socket.on("removerJogadores", () => {
+    pseudoBancoUsuarioPoker = [];
+    cartasAbertas = false;
+
+    pokerIo.emit("voltarParaSelecaoDeSala");
   });
 });
 

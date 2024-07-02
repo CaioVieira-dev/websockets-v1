@@ -4,6 +4,9 @@ import { PokerContext } from "../poker/PokerProvider";
 export function Configuracoes() {
   const { socket } = useContext(PokerContext);
 
+  const removerJogadores = useCallback(() => {
+    socket.emit("removerJogadores");
+  }, [socket]);
   const limparTodasCartas = useCallback(() => {
     socket.emit("limparTodasCartas");
   }, [socket]);
@@ -14,7 +17,7 @@ export function Configuracoes() {
   return (
     <div className="flex w-full justify-between gap-2">
       <div
-        onClick={() => {}}
+        onClick={removerJogadores}
         className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
       >
         Remover jogadores
