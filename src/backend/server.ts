@@ -31,7 +31,7 @@ interface UsuarioPoker {
 let pseudoBancoUsuarioPoker: UsuarioPoker[] = [];
 let idUsuarioPoker = 0;
 let cartasAbertas = false;
-const possibleCards = ["1", "2", "3", "5", "8", "13", "21"];
+let possibleCards = ["1", "2", "3", "5", "8", "13", "21"];
 
 app.post("/entrar", (req, res) => {
   const { sala, nome } = req.body || {};
@@ -59,6 +59,7 @@ app.post("/entrar", (req, res) => {
   return res.send(usuario);
 });
 
+//TODO: mover funções do poker para um arquivo especifico, porque ta começando a me incomodar
 pokerIo.on("connection", (socket) => {
   //TODO: corrigir problema onde ao entrar jogadores antigos não veem o novo
   socket.emit("setCarta", pseudoBancoUsuarioPoker);
@@ -108,6 +109,12 @@ pokerIo.on("connection", (socket) => {
     cartasAbertas = false;
 
     pokerIo.emit("voltarParaSelecaoDeSala");
+  });
+
+  socket.on("setCartasPossiveis", (dados: string[]) => {
+    possibleCards = dados;
+
+    pokerIo.emit("setCartasPossiveis", possibleCards);
   });
 });
 
