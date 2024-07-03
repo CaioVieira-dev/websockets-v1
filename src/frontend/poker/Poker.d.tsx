@@ -4,5 +4,5 @@ export type jogador = {
 };
 
 export type gameState = jogador & {
-  carta: number | null;
+  carta: string | null;
 };

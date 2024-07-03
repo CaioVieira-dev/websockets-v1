@@ -25,12 +25,13 @@ interface UsuarioPoker {
   id: number;
   nome: string;
   sala: string;
-  carta?: number;
+  carta?: string;
 }
 
 let pseudoBancoUsuarioPoker: UsuarioPoker[] = [];
 let idUsuarioPoker = 0;
 let cartasAbertas = false;
+const possibleCards = ["1", "2", "3", "5", "8", "13", "21"];
 
 app.post("/entrar", (req, res) => {
   const { sala, nome } = req.body || {};
@@ -61,10 +62,11 @@ app.post("/entrar", (req, res) => {
 pokerIo.on("connection", (socket) => {
   //TODO: corrigir problema onde ao entrar jogadores antigos não veem o novo
   socket.emit("setCarta", pseudoBancoUsuarioPoker);
+  socket.emit("setCartasPossiveis", possibleCards);
   pokerIo.emit("setCartasAbertas", cartasAbertas);
 
   socket.on("setCarta", (dados) => {
-    const { id, nome, carta }: { id: number; nome: string; carta: number } =
+    const { id, nome, carta }: { id: number; nome: string; carta: string } =
       dados;
 
     const novoEstado = pseudoBancoUsuarioPoker.map((usuarioPoker) => {

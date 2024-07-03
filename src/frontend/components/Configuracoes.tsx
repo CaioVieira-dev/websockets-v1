@@ -2,16 +2,16 @@ import { useCallback, useContext } from "react";
 import { PokerContext } from "../poker/PokerProvider";
 
 export function Configuracoes() {
-  const { socket } = useContext(PokerContext);
+  const { socket } = useContext(PokerContext) || {};
 
   const removerJogadores = useCallback(() => {
-    socket.emit("removerJogadores");
+    socket?.emit("removerJogadores");
   }, [socket]);
   const limparTodasCartas = useCallback(() => {
-    socket.emit("limparTodasCartas");
+    socket?.emit("limparTodasCartas");
   }, [socket]);
   const toggleCartasAbertas = useCallback(() => {
-    socket.emit("toggleAbrirCartas");
+    socket?.emit("toggleAbrirCartas");
   }, [socket]);
 
   return (

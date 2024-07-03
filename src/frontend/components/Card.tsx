@@ -1,29 +1,29 @@
 export type CardProps = {
-  number: number | null;
+  symbol: string | null;
   mini?: boolean;
-  selectCard?: (cardNumber: number) => void;
+  selectCard?: (cardNumber: string) => void;
   cartasAbertas?: boolean;
 };
 
 export function Card({
-  number,
+  symbol,
   mini,
   selectCard,
   cartasAbertas = true,
 }: CardProps) {
-  if (!number) {
+  if (!symbol) {
     return null;
   }
 
   return (
     <div
-      onClick={() => selectCard?.(number)}
+      onClick={() => selectCard?.(symbol)}
       className={`flex transition-colors ${mini ? "h-20 w-12" : "h-60 w-2/12"} items-center justify-center rounded-lg bg-slate-300 hover:cursor-pointer hover:bg-slate-400`}
     >
       <p
         className={`font-sans ${mini ? "text-[3rem] leading-[2rem]" : "text-[7rem] leading-[6rem]"}`}
       >
-        {cartasAbertas && number}
+        {cartasAbertas && symbol}
       </p>
     </div>
   );

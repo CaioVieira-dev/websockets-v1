@@ -1,13 +1,19 @@
-import { ReactNode, createContext, useEffect } from "react";
+import { ReactNode, createContext, useEffect, useState } from "react";
 import { getSocket } from "../utils/socket";
 import { gameState } from "./Poker.d";
 import { useNavigate } from "react-router-dom";
+import { Socket } from "socket.io-client";
 
 const socket = getSocket({
   path: "/poker/",
 });
 
-export const PokerContext = createContext({ socket });
+type PokerContextType = {
+  socket: Socket;
+  cartasPossiveis: string[];
+};
+
+export const PokerContext = createContext<PokerContextType | null>(null);
 
 type PokerProviderProps = {
   children: ReactNode;
@@ -23,6 +29,7 @@ export function PokerProvider({
   jogador,
 }: PokerProviderProps) {
   const navigate = useNavigate();
+  const [cartasPossiveis, setCartasPossiveis] = useState<string[]>([]);
 
   useEffect(() => {
     function setCarta(data: []) {
@@ -34,6 +41,9 @@ export function PokerProvider({
     function onVoltarParaSelecaoDeSala() {
       return navigate("/");
     }
+    function _setCartasPossiveis(data: []) {
+      setCartasPossiveis(data);
+    }
 
     if (jogador) {
       socket.connect();
@@ -41,11 +51,13 @@ export function PokerProvider({
     socket.on("setCarta", setCarta);
     socket.on("setCartasAbertas", _setCartasAbertas);
     socket.on("voltarParaSelecaoDeSala", onVoltarParaSelecaoDeSala);
+    socket.on("setCartasPossiveis", _setCartasPossiveis);
 
     return () => {
       socket.off("setCarta", setCarta);
       socket.off("setCartasAbertas", _setCartasAbertas);
       socket.off("voltarParaSelecaoDeSala", onVoltarParaSelecaoDeSala);
+      socket.off("setCartasPossiveis", _setCartasPossiveis);
       if (jogador) {
         socket.disconnect();
       }
@@ -56,6 +68,7 @@ export function PokerProvider({
     <PokerContext.Provider
       value={{
         socket,
+        cartasPossiveis,
       }}
     >
       {children}

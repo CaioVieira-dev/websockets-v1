@@ -11,10 +11,10 @@ type PlayersProps = CardOptionsProps & {
 };
 
 export function Players({ game, jogador, cartasAbertas }: PlayersProps) {
-  const { socket } = useContext(PokerContext);
+  const { socket } = useContext(PokerContext) || {};
 
   const resetPlayerHand = useCallback(() => {
-    socket.emit("setCarta", {
+    socket?.emit("setCarta", {
       id: jogador.id,
       nome: jogador.nome,
       carta: null,

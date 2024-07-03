@@ -7,16 +7,14 @@ export type CardOptionsProps = {
   jogador: jogador;
 };
 
-const possibleCards = [1, 2, 3, 5, 8, 13, 21];
-
 export function CardOptions({ jogador }: CardOptionsProps) {
-  const { socket } = useContext(PokerContext);
+  const { socket, cartasPossiveis } = useContext(PokerContext) || {};
   const selectCard = useCallback(
-    (cardNumber: number) => {
-      socket.emit("setCarta", {
+    (card: string) => {
+      socket?.emit("setCarta", {
         id: jogador.id,
         nome: jogador.nome,
-        carta: cardNumber,
+        carta: card,
       });
     },
     [jogador.id, jogador.nome, socket],
@@ -24,8 +22,8 @@ export function CardOptions({ jogador }: CardOptionsProps) {
 
   return (
     <div className="flex flex-wrap justify-center gap-4">
-      {possibleCards.map((val) => (
-        <Card number={val} key={`card-${val}`} selectCard={selectCard} />
+      {cartasPossiveis?.map((val) => (
+        <Card symbol={val} key={`card-${val}`} selectCard={selectCard} />
       ))}
     </div>
   );
