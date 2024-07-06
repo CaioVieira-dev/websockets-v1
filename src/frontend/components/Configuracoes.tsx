@@ -1,4 +1,5 @@
 import { useCallback, useContext } from "react";
+import { ConfigurarCartas } from "./ConfigurarCartas";
 import { PokerContext } from "../poker/PokerProvider";
 
 export function Configuracoes() {
@@ -6,18 +7,6 @@ export function Configuracoes() {
 
   const removerJogadores = useCallback(() => {
     socket?.emit("removerJogadores");
-  }, [socket]);
-  const configurarCartas = useCallback(() => {
-    socket?.emit("setCartasPossiveis", [
-      "☕",
-      "1",
-      "2",
-      "3",
-      "5",
-      "8",
-      "13",
-      "21",
-    ]);
   }, [socket]);
   const limparTodasCartas = useCallback(() => {
     socket?.emit("limparTodasCartas");
@@ -34,12 +23,7 @@ export function Configuracoes() {
       >
         Remover jogadores
       </div>
-      <div
-        onClick={configurarCartas}
-        className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
-      >
-        Configurar cartas
-      </div>
+      <ConfigurarCartas />
       <div
         onClick={toggleCartasAbertas}
         className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
