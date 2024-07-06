@@ -61,8 +61,7 @@ app.post("/entrar", (req, res) => {
 
 //TODO: mover funções do poker para um arquivo especifico, porque ta começando a me incomodar
 pokerIo.on("connection", (socket) => {
-  //TODO: corrigir problema onde ao entrar jogadores antigos não veem o novo
-  socket.emit("setCarta", pseudoBancoUsuarioPoker);
+  pokerIo.emit("setCarta", pseudoBancoUsuarioPoker);
   socket.emit("setCartasPossiveis", possibleCards);
   pokerIo.emit("setCartasAbertas", cartasAbertas);
 
