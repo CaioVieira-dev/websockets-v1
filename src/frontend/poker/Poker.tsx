@@ -8,20 +8,20 @@ import { PokerProvider } from "./PokerProvider";
 
 export function Poker() {
   const location = useLocation();
-  const jogador = useMemo(() => location.state, [location]);
+  const player = useMemo(() => location.state, [location]);
   const [game, setGame] = useState<gameState[]>([]);
-  const [cartasAbertas, setCartasAbertas] = useState(false);
+  const [cardsAreOpened, setCardsAreOpened] = useState(false);
 
   return (
     <PokerProvider
-      jogador={jogador}
-      setCartasAbertas={setCartasAbertas}
+      player={player}
+      setCardsAreOpened={setCardsAreOpened}
       setGame={setGame}
     >
       <div className="flex h-full flex-col gap-4 bg-slate-900 px-16 py-16">
-        <CardOptions jogador={jogador} />
+        <CardOptions player={player} />
         <Configuracoes />
-        <Players jogador={jogador} game={game} cartasAbertas={cartasAbertas} />
+        <Players player={player} game={game} cardsAreOpened={cardsAreOpened} />
       </div>
     </PokerProvider>
   );

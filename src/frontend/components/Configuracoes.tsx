@@ -5,33 +5,33 @@ import { PokerContext } from "../poker/PokerProvider";
 export function Configuracoes() {
   const { socket } = useContext(PokerContext) || {};
 
-  const removerJogadores = useCallback(() => {
-    socket?.emit("removerJogadores");
+  const removePlayers = useCallback(() => {
+    socket?.emit("removePlayers");
   }, [socket]);
-  const limparTodasCartas = useCallback(() => {
-    socket?.emit("limparTodasCartas");
+  const clearBoard = useCallback(() => {
+    socket?.emit("clearBoard");
   }, [socket]);
-  const toggleCartasAbertas = useCallback(() => {
-    socket?.emit("toggleAbrirCartas");
+  const toggleCardsAreOpened = useCallback(() => {
+    socket?.emit("toggleCardsAreOpened");
   }, [socket]);
 
   return (
     <div className="flex w-full justify-between gap-2">
       <div
-        onClick={removerJogadores}
+        onClick={removePlayers}
         className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
       >
         Remover jogadores
       </div>
       <ConfigurarCartas />
       <div
-        onClick={toggleCartasAbertas}
+        onClick={toggleCardsAreOpened}
         className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
       >
         Virar todos
       </div>
       <div
-        onClick={limparTodasCartas}
+        onClick={clearBoard}
         className="rounded-md bg-red-500 p-4 transition-colors hover:cursor-pointer hover:bg-red-800"
       >
         Remover todos

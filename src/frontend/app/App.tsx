@@ -9,9 +9,9 @@ function App() {
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
-      const { sala, nome } = e.target as EventTarget & {
-        nome: { value: string };
-        sala: { value: string };
+      const { room, name } = e.target as EventTarget & {
+        name: { value: string };
+        room: { value: string };
       };
 
       const res = await fetch("http://localhost:3000/entrar", {
@@ -21,18 +21,18 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          nome: nome.value,
-          sala: sala.value,
+          name: name.value,
+          room: room.value,
         }),
       });
 
-      const resultado = await res.json();
+      const result = await res.json();
 
-      if (resultado?.error) {
-        return setError(resultado);
+      if (result?.error) {
+        return setError(result);
       }
 
-      return navigate("/poker", { state: resultado });
+      return navigate("/poker", { state: result });
     },
     [navigate],
   );
@@ -44,22 +44,22 @@ function App() {
 
         {/* <Form method="post" onSubmit={entrar} className="flex flex-col gap-2"> */}
         <form method="post" className="flex flex-col gap-2" onSubmit={entrar}>
-          <label htmlFor="nome" className="text-slate-200">
+          <label htmlFor="name" className="text-slate-200">
             Nome:
           </label>
           <input
-            name="nome"
+            name="name"
             type="text"
             required
             placeholder="Seu nome na sala..."
             className="rounded-md p-1"
           />
-          <label htmlFor="sala" className="text-slate-200">
+          <label htmlFor="room" className="text-slate-200">
             Sala:
           </label>
           <select
-            name="sala"
-            id="sala"
+            name="room"
+            id="room"
             required
             defaultValue={""}
             className="rounded-md p-1"

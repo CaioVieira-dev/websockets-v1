@@ -1,28 +1,28 @@
 import { useCallback, useContext } from "react";
-import { jogador } from "../poker/Poker.d";
+import { player } from "../poker/Poker.d";
 import { Card } from "./Card";
 import { PokerContext } from "../poker/PokerProvider";
 
 export type CardOptionsProps = {
-  jogador: jogador;
+  player: player;
 };
 
-export function CardOptions({ jogador }: CardOptionsProps) {
-  const { socket, cartasPossiveis } = useContext(PokerContext) || {};
+export function CardOptions({ player }: CardOptionsProps) {
+  const { socket, possibleCards } = useContext(PokerContext) || {};
   const selectCard = useCallback(
     (card: string) => {
-      socket?.emit("setCarta", {
-        id: jogador.id,
-        nome: jogador.nome,
-        carta: card,
+      socket?.emit("setGame", {
+        id: player.id,
+        name: player.name,
+        card,
       });
     },
-    [jogador.id, jogador.nome, socket],
+    [player.id, player.name, socket],
   );
 
   return (
     <div className="flex flex-wrap justify-center gap-4">
-      {cartasPossiveis?.map((val) => (
+      {possibleCards?.map((val) => (
         <Card symbol={val} key={`card-${val}`} selectCard={selectCard} />
       ))}
     </div>

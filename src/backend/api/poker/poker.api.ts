@@ -3,35 +3,35 @@ import { Server } from "socket.io";
 
 export interface UsuarioPoker {
   id: number;
-  nome: string;
-  sala: string;
-  carta?: string;
+  name: string;
+  room: string;
+  card?: string;
 }
 
 let idUsuarioPoker = 0;
 
 let pseudoBancoUsuarioPoker: UsuarioPoker[] = [];
-let cartasAbertas = false;
+let cardsAreOpened = false;
 let possibleCards = ["1", "2", "3", "5", "8", "13", "21"];
 
 export const entrarNoPoker: RequestHandler = (req, res) => {
-  const { sala, nome } = req.body || {};
+  const { room, name } = req.body || {};
 
   //TODO: fazer uma validação mais seria que isso
-  if (!sala || !nome) {
+  if (!room || !name) {
     res.send({ error: "Dados invalidos para entrar" });
   }
 
   let usuario = pseudoBancoUsuarioPoker.find(
-    ({ nome: nomeUsuario, sala: salaUsuario }) =>
-      nomeUsuario === nome && salaUsuario === sala,
+    ({ name: userName, room: userRoom }) =>
+      userName === name && userRoom === room,
   );
 
   if (!usuario) {
     usuario = {
       id: idUsuarioPoker,
-      nome,
-      sala,
+      name,
+      room,
     };
     idUsuarioPoker += 1;
     pseudoBancoUsuarioPoker.push(usuario);
@@ -42,59 +42,59 @@ export const entrarNoPoker: RequestHandler = (req, res) => {
 
 export function registerSocketFunctions(pokerIo: Server) {
   pokerIo.on("connection", (socket) => {
-    pokerIo.emit("setCarta", pseudoBancoUsuarioPoker);
-    socket.emit("setCartasPossiveis", possibleCards);
-    pokerIo.emit("setCartasAbertas", cartasAbertas);
+    pokerIo.emit("setGame", pseudoBancoUsuarioPoker);
+    socket.emit("setPossibleCards", possibleCards);
+    pokerIo.emit("setCardsAreOpen", cardsAreOpened);
 
-    socket.on("setCarta", (dados) => {
-      const { id, nome, carta }: { id: number; nome: string; carta: string } =
-        dados;
+    socket.on("setGame", (data) => {
+      const { id, name, card }: { id: number; name: string; card: string } =
+        data;
 
       const novoEstado = pseudoBancoUsuarioPoker.map((usuarioPoker) => {
-        if (usuarioPoker.id === id && usuarioPoker.nome === nome) {
+        if (usuarioPoker.id === id && usuarioPoker.name === name) {
           return {
             ...usuarioPoker,
-            carta,
+            card,
           };
         }
         return usuarioPoker;
       });
 
       pseudoBancoUsuarioPoker = novoEstado;
-      pokerIo.emit("setCarta", pseudoBancoUsuarioPoker);
+      pokerIo.emit("setGame", pseudoBancoUsuarioPoker);
     });
-    socket.on("limparTodasCartas", () => {
+    socket.on("clearBoard", () => {
       const novoEstado = pseudoBancoUsuarioPoker.map((usuarioPoker) => {
         return {
           id: usuarioPoker.id,
-          nome: usuarioPoker.nome,
-          sala: usuarioPoker.sala,
+          name: usuarioPoker.name,
+          room: usuarioPoker.room,
         };
       });
 
       pseudoBancoUsuarioPoker = novoEstado;
-      cartasAbertas = false;
+      cardsAreOpened = false;
 
-      pokerIo.emit("setCarta", pseudoBancoUsuarioPoker);
-      pokerIo.emit("setCartasAbertas", cartasAbertas);
+      pokerIo.emit("setGame", pseudoBancoUsuarioPoker);
+      pokerIo.emit("setCardsAreOpen", cardsAreOpened);
     });
 
-    socket.on("toggleAbrirCartas", () => {
-      cartasAbertas = !cartasAbertas;
-      pokerIo.emit("setCartasAbertas", cartasAbertas);
+    socket.on("toggleCardsAreOpened", () => {
+      cardsAreOpened = !cardsAreOpened;
+      pokerIo.emit("setCardsAreOpen", cardsAreOpened);
     });
 
-    socket.on("removerJogadores", () => {
+    socket.on("removePlayers", () => {
       pseudoBancoUsuarioPoker = [];
-      cartasAbertas = false;
+      cardsAreOpened = false;
 
-      pokerIo.emit("voltarParaSelecaoDeSala");
+      pokerIo.emit("backToRoomSelection");
     });
 
-    socket.on("setCartasPossiveis", (dados: string[]) => {
-      possibleCards = dados;
+    socket.on("setPossibleCards", (data: string[]) => {
+      possibleCards = data;
 
-      pokerIo.emit("setCartasPossiveis", possibleCards);
+      pokerIo.emit("setPossibleCards", possibleCards);
     });
   });
 }

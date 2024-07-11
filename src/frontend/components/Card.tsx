@@ -2,14 +2,14 @@ export type CardProps = {
   symbol: string | null;
   mini?: boolean;
   selectCard?: (cardNumber: string) => void;
-  cartasAbertas?: boolean;
+  cardsAreOpened?: boolean;
 };
 
 export function Card({
   symbol,
   mini,
   selectCard,
-  cartasAbertas = true,
+  cardsAreOpened = true,
 }: CardProps) {
   if (!symbol) {
     return null;
@@ -23,7 +23,7 @@ export function Card({
       <p
         className={`font-sans ${mini ? "text-[3rem] leading-[2rem]" : "text-[7rem] leading-[6rem]"}`}
       >
-        {cartasAbertas && symbol}
+        {cardsAreOpened && symbol}
       </p>
     </div>
   );

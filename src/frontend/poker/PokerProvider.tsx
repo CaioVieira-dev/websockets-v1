@@ -10,7 +10,7 @@ const socket = getSocket({
 
 type PokerContextType = {
   socket: Socket;
-  cartasPossiveis: string[];
+  possibleCards: string[];
 };
 
 export const PokerContext = createContext<PokerContextType | null>(null);
@@ -18,57 +18,57 @@ export const PokerContext = createContext<PokerContextType | null>(null);
 type PokerProviderProps = {
   children: ReactNode;
   setGame: React.Dispatch<React.SetStateAction<gameState[]>>;
-  setCartasAbertas: React.Dispatch<React.SetStateAction<boolean>>;
-  jogador: unknown;
+  setCardsAreOpened: React.Dispatch<React.SetStateAction<boolean>>;
+  player: unknown;
 };
 
 export function PokerProvider({
   children,
   setGame,
-  setCartasAbertas,
-  jogador,
+  setCardsAreOpened,
+  player,
 }: PokerProviderProps) {
   const navigate = useNavigate();
-  const [cartasPossiveis, setCartasPossiveis] = useState<string[]>([]);
+  const [possibleCards, setPossibleCards] = useState<string[]>([]);
 
   useEffect(() => {
-    function setCarta(data: []) {
+    function _setGame(data: []) {
       setGame(data);
     }
-    function _setCartasAbertas(data: boolean) {
-      setCartasAbertas(data);
+    function _setCardsAreOpen(data: boolean) {
+      setCardsAreOpened(data);
     }
-    function onVoltarParaSelecaoDeSala() {
+    function onBackToSelectionRoom() {
       return navigate("/");
     }
-    function _setCartasPossiveis(data: []) {
-      setCartasPossiveis(data);
+    function _setPossibleCards(data: []) {
+      setPossibleCards(data);
     }
 
-    if (jogador) {
+    if (player) {
       socket.connect();
     }
-    socket.on("setCarta", setCarta);
-    socket.on("setCartasAbertas", _setCartasAbertas);
-    socket.on("voltarParaSelecaoDeSala", onVoltarParaSelecaoDeSala);
-    socket.on("setCartasPossiveis", _setCartasPossiveis);
+    socket.on("setGame", _setGame);
+    socket.on("setCardsAreOpen", _setCardsAreOpen);
+    socket.on("backToRoomSelection", onBackToSelectionRoom);
+    socket.on("setPossibleCards", _setPossibleCards);
 
     return () => {
-      socket.off("setCarta", setCarta);
-      socket.off("setCartasAbertas", _setCartasAbertas);
-      socket.off("voltarParaSelecaoDeSala", onVoltarParaSelecaoDeSala);
-      socket.off("setCartasPossiveis", _setCartasPossiveis);
-      if (jogador) {
+      socket.off("setGame", _setGame);
+      socket.off("setCardsAreOpen", _setCardsAreOpen);
+      socket.off("backToRoomSelection", onBackToSelectionRoom);
+      socket.off("setPossibleCards", _setPossibleCards);
+      if (player) {
         socket.disconnect();
       }
     };
-  }, [jogador, navigate, setCartasAbertas, setGame]);
+  }, [player, navigate, setCardsAreOpened, setGame]);
 
   return (
     <PokerContext.Provider
       value={{
         socket,
-        cartasPossiveis,
+        possibleCards,
       }}
     >
       {children}

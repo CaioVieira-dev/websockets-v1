@@ -1,8 +1,8 @@
-export type jogador = {
-  nome: string;
+export type player = {
+  name: string;
   id: number;
 };
 
-export type gameState = jogador & {
-  carta: string | null;
+export type gameState = player & {
+  card: string | null;
 };
