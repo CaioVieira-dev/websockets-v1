@@ -31,7 +31,7 @@ export function Players({ game, player, cardsAreOpened }: PlayersProps) {
         name={currPlayer?.name || ""}
         card={currPlayer?.card}
         resetPlayerHand={resetPlayerHand}
-        cardsAreOpened={cardsAreOpened}
+        cardsAreOpened
       />
 
       {otherPlayers?.map?.((playerHand) => (
