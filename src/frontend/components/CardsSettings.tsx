@@ -2,7 +2,7 @@ import { useCallback, useContext, useRef, useState } from "react";
 import { PokerContext } from "../poker/PokerProvider";
 import { Card } from "./Card";
 
-export function ConfigurarCartas() {
+export function CardsSettings() {
   const { socket } = useContext(PokerContext) || {};
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const [cards, setCards] = useState<string[]>([]);
@@ -19,8 +19,7 @@ export function ConfigurarCartas() {
     setIsOpen(!isOpen);
   }, [isOpen]);
 
-  //TODO: trocar esse nome
-  const configurarCartas = useCallback(() => {
+  const changeCards = useCallback(() => {
     socket?.emit("setPossibleCards", cards);
     toggleModal();
   }, [socket, cards, toggleModal]);
@@ -86,7 +85,7 @@ export function ConfigurarCartas() {
             </div>
             <button
               type="submit"
-              onClick={configurarCartas}
+              onClick={changeCards}
               className="rounded border bg-green-200 p-2"
             >
               Salvar

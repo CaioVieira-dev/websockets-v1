@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { gameState } from "./Poker.d";
 import { CardOptions } from "../components/CardOptions";
-import { Configuracoes } from "../components/Configuracoes";
+import { Settings } from "../components/Settings";
 import { Players } from "../components/Players";
 import { PokerProvider } from "./PokerProvider";
 
@@ -20,7 +20,7 @@ export function Poker() {
     >
       <div className="flex h-full flex-col gap-4 bg-slate-900 px-16 py-16">
         <CardOptions player={player} />
-        <Configuracoes />
+        <Settings />
         <Players player={player} game={game} cardsAreOpened={cardsAreOpened} />
       </div>
     </PokerProvider>

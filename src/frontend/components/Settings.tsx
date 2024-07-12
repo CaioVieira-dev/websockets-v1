@@ -1,8 +1,8 @@
 import { useCallback, useContext } from "react";
-import { ConfigurarCartas } from "./ConfigurarCartas";
+import { CardsSettings } from "./CardsSettings";
 import { PokerContext } from "../poker/PokerProvider";
 
-export function Configuracoes() {
+export function Settings() {
   const { socket } = useContext(PokerContext) || {};
 
   const removePlayers = useCallback(() => {
@@ -23,7 +23,7 @@ export function Configuracoes() {
       >
         Remover jogadores
       </div>
-      <ConfigurarCartas />
+      <CardsSettings />
       <div
         onClick={toggleCardsAreOpened}
         className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
