@@ -24,7 +24,6 @@ export function Players({ game, player, cardsAreOpened }: PlayersProps) {
   const currPlayer = game.find((playeHand) => playeHand.id === player.id);
   const otherPlayers = game.filter((playerHand) => playerHand.id !== player.id);
 
-  //TODO: ajeitar a cor, porque no hover a carta ta sumindo
   return (
     <div className="flex h-full w-full flex-col rounded-3xl bg-slate-200">
       <div className="flex w-full items-center justify-between border-b-2 border-slate-400 px-8 py-4">
