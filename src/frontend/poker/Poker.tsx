@@ -18,10 +18,16 @@ export function Poker() {
       setCardsAreOpened={setCardsAreOpened}
       setGame={setGame}
     >
-      <div className="flex h-full flex-col gap-4 bg-slate-900 px-16 py-16">
-        <CardOptions player={player} />
-        <Settings />
-        <Players player={player} game={game} cardsAreOpened={cardsAreOpened} />
+      <div className="h-screen bg-slate-900 px-16 py-16">
+        <div className="container mx-auto flex h-full w-[900px] flex-col gap-4">
+          <CardOptions player={player} />
+          <Settings />
+          <Players
+            player={player}
+            game={game}
+            cardsAreOpened={cardsAreOpened}
+          />
+        </div>
       </div>
     </PokerProvider>
   );
