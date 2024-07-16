@@ -9,7 +9,7 @@ type VoteResultsProps = {
 export function VoteResults({ game }: VoteResultsProps) {
   const mostVotedCards = useMemo(() => {
     const cardCountMap = game?.reduce<Record<string, number>>((acc, cur) => {
-      if (cur.card === null) {
+      if (cur.card === null || cur.card === undefined) {
         return acc;
       }
 
@@ -32,9 +32,9 @@ export function VoteResults({ game }: VoteResultsProps) {
   }, [game]);
 
   return (
-    <div className="flex h-full min-h-32 items-center justify-between rounded-3xl bg-slate-200 px-8">
+    <div className="flex h-full min-h-32 items-center justify-between rounded-3xl bg-slate-200 px-8 py-2">
       <p className="px-2 text-3xl">Mais votados: </p>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         {mostVotedCards.map((card, index) => (
           <Card symbol={card} mini key={`most-voted-${card}-${index}`} />
         ))}
