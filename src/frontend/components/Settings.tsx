@@ -19,14 +19,14 @@ export function Settings() {
     <div className="flex w-full justify-between gap-2">
       <div
         onClick={removePlayers}
-        className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
+        className="rounded-md bg-slate-200 p-4 transition-colors hover:cursor-pointer hover:bg-slate-400"
       >
         Remover jogadores
       </div>
       <CardsSettings />
       <div
         onClick={toggleCardsAreOpened}
-        className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
+        className="rounded-md bg-slate-200 p-4 transition-colors hover:cursor-pointer hover:bg-slate-400"
       >
         Virar todos
       </div>

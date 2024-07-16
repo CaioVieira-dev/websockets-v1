@@ -18,8 +18,8 @@ export function Poker() {
       setCardsAreOpened={setCardsAreOpened}
       setGame={setGame}
     >
-      <div className="h-screen bg-slate-900 px-16 py-16">
-        <div className="container mx-auto flex h-full w-[900px] flex-col gap-4">
+      <div className="min-h-screen bg-slate-900 py-16">
+        <div className="mx-auto flex h-full flex-col gap-4 px-4 max-xl:max-w-screen-sm min-[1280px]:max-w-screen-md">
           <CardOptions player={player} />
           <Settings />
           <Players

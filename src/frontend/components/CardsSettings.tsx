@@ -28,7 +28,7 @@ export function CardsSettings() {
     <>
       <div
         onClick={toggleModal}
-        className="rounded-md bg-slate-500 p-4 transition-colors hover:cursor-pointer hover:bg-slate-700"
+        className="rounded-md bg-slate-200 p-4 transition-colors hover:cursor-pointer hover:bg-slate-400"
       >
         Configurar cartas
       </div>

@@ -26,7 +26,11 @@ export function Players({ game, player, cardsAreOpened }: PlayersProps) {
 
   //TODO: ajeitar a cor, porque no hover a carta ta sumindo
   return (
-    <div className="flex h-full w-full flex-col gap-2 rounded-3xl bg-slate-300">
+    <div className="flex h-full w-full flex-col rounded-3xl bg-slate-200">
+      <div className="flex w-full items-center justify-between border-b-2 border-slate-400 px-8 py-4">
+        <p className="px-2 text-3xl">Nome</p>
+        <p className="px-2 text-3xl">Pontos</p>
+      </div>
       <Player
         name={currPlayer?.name || ""}
         card={currPlayer?.card}

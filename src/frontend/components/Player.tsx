@@ -14,9 +14,9 @@ export function Player({
   cardsAreOpened,
 }: PlayerProps) {
   return (
-    <div className="flex w-full items-center gap-2 rounded-xl bg-slate-400 py-8">
+    <div className="flex min-h-32 w-full items-center justify-between border-slate-400 px-8 [&:not(:last-child)]:border-b-2">
       <p className="px-2 text-3xl">{name}</p>
-      <div className="" onClick={resetPlayerHand}>
+      <div className="px-4" onClick={resetPlayerHand}>
         <Card symbol={card || ""} mini cardsAreOpened={cardsAreOpened} />
       </div>
     </div>
