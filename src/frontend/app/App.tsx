@@ -39,7 +39,7 @@ function App() {
 
   return (
     <>
-      <div className="flex h-full flex-col gap-4 bg-slate-900 px-16 py-16">
+      <div className="flex min-h-screen flex-col gap-4 bg-slate-900 px-16 py-16">
         <h2 className="text-9xl text-slate-200">Entre em uma sala!!</h2>
 
         {/* <Form method="post" onSubmit={entrar} className="flex flex-col gap-2"> */}
