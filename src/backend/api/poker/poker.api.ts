@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 
 export interface UsuarioPoker {
   id: number;
@@ -10,19 +10,30 @@ export interface UsuarioPoker {
 
 let idUsuarioPoker = 0;
 
-let pseudoBancoUsuarioPoker: UsuarioPoker[] = [];
-let cardsAreOpened = false;
-let possibleCards = ["1", "2", "3", "5", "8", "13", "21"];
+const rooms: Record<string, UsuarioPoker[]> = {};
+const possibleCardsInRooms: Record<string, string[]> = {};
+const cardsAreOpenedInRooms: Record<string, boolean> = {};
+const cardsAreOpened = false;
+const possibleCards = ["1", "2", "3", "5", "8", "13", "21"];
 
 export const entrarNoPoker: RequestHandler = (req, res) => {
-  const { room, name } = req.body || {};
-
+  const { room, name, roomId: reqRoomId } = req.body || {};
+  let roomId = reqRoomId;
   //TODO: fazer uma validação mais seria que isso
-  if (!room || !name) {
+  if ((!room && !roomId) || !name) {
     res.send({ error: "Dados invalidos para entrar" });
   }
 
-  let usuario = pseudoBancoUsuarioPoker.find(
+  if (!roomId) {
+    const newRoomId = makeUniqueId(8, Object.keys(rooms));
+    rooms[newRoomId] = [];
+    possibleCardsInRooms[newRoomId] = possibleCards;
+    cardsAreOpenedInRooms[newRoomId] = cardsAreOpened;
+    roomId = newRoomId;
+    //TODO: criar expiração automatica da sala pra salvar memoria
+  }
+
+  let usuario = rooms[roomId].find(
     ({ name: userName, room: userRoom }) =>
       userName === name && userRoom === room,
   );
@@ -34,67 +45,105 @@ export const entrarNoPoker: RequestHandler = (req, res) => {
       room,
     };
     idUsuarioPoker += 1;
-    pseudoBancoUsuarioPoker.push(usuario);
+    rooms[roomId].push(usuario);
   }
 
-  return res.send(usuario);
+  return res.send({ ...usuario, roomId });
 };
+
+function addPlayerToGame(pokerIo: Server, socket: Socket, roomId: string) {
+  const game = rooms[roomId];
+  const possibleCards = possibleCardsInRooms[roomId];
+  const cardsAreOpened = cardsAreOpenedInRooms[roomId];
+
+  pokerIo.to(roomId).emit("setGame", game);
+  socket.emit("setPossibleCards", possibleCards);
+  pokerIo.to(roomId).emit("setCardsAreOpen", cardsAreOpened);
+}
+
+function registerEvents(pokerIo: Server, socket: Socket, roomId: string) {
+  socket.on("setGame", (data) => {
+    const { id, name, card }: { id: number; name: string; card: string } = data;
+
+    const novoEstado = rooms[roomId].map((usuarioPoker) => {
+      if (usuarioPoker.id === id && usuarioPoker.name === name) {
+        return {
+          ...usuarioPoker,
+          card,
+        };
+      }
+      return usuarioPoker;
+    });
+
+    rooms[roomId] = novoEstado;
+    pokerIo.to(roomId).emit("setGame", rooms[roomId]);
+  });
+  socket.on("clearBoard", () => {
+    const novoEstado = rooms[roomId].map((usuarioPoker) => {
+      return {
+        id: usuarioPoker.id,
+        name: usuarioPoker.name,
+        room: usuarioPoker.room,
+      };
+    });
+
+    rooms[roomId] = novoEstado;
+    cardsAreOpenedInRooms[roomId] = false;
+
+    pokerIo.to(roomId).emit("setGame", rooms[roomId]);
+    pokerIo.to(roomId).emit("setCardsAreOpen", cardsAreOpenedInRooms[roomId]);
+  });
+
+  socket.on("toggleCardsAreOpened", () => {
+    cardsAreOpenedInRooms[roomId] = !cardsAreOpenedInRooms[roomId];
+    pokerIo.to(roomId).emit("setCardsAreOpen", cardsAreOpenedInRooms[roomId]);
+  });
+
+  socket.on("removePlayers", () => {
+    rooms[roomId] = [];
+    cardsAreOpenedInRooms[roomId] = false;
+    pokerIo.to(roomId).emit("backToRoomSelection");
+  });
+
+  socket.on("setPossibleCards", (data: string[]) => {
+    possibleCardsInRooms[roomId] = data;
+
+    pokerIo.to(roomId).emit("setPossibleCards", possibleCardsInRooms[roomId]);
+  });
+}
 
 export function registerSocketFunctions(pokerIo: Server) {
   pokerIo.on("connection", (socket) => {
-    pokerIo.emit("setGame", pseudoBancoUsuarioPoker);
-    socket.emit("setPossibleCards", possibleCards);
-    pokerIo.emit("setCardsAreOpen", cardsAreOpened);
+    const roomId = socket.handshake.headers["room-id"];
+    if (typeof roomId !== "string") {
+      //TODO: atirar erro aqui
+      return;
+    }
 
-    socket.on("setGame", (data) => {
-      const { id, name, card }: { id: number; name: string; card: string } =
-        data;
+    socket.join(roomId);
 
-      const novoEstado = pseudoBancoUsuarioPoker.map((usuarioPoker) => {
-        if (usuarioPoker.id === id && usuarioPoker.name === name) {
-          return {
-            ...usuarioPoker,
-            card,
-          };
-        }
-        return usuarioPoker;
-      });
-
-      pseudoBancoUsuarioPoker = novoEstado;
-      pokerIo.emit("setGame", pseudoBancoUsuarioPoker);
-    });
-    socket.on("clearBoard", () => {
-      const novoEstado = pseudoBancoUsuarioPoker.map((usuarioPoker) => {
-        return {
-          id: usuarioPoker.id,
-          name: usuarioPoker.name,
-          room: usuarioPoker.room,
-        };
-      });
-
-      pseudoBancoUsuarioPoker = novoEstado;
-      cardsAreOpened = false;
-
-      pokerIo.emit("setGame", pseudoBancoUsuarioPoker);
-      pokerIo.emit("setCardsAreOpen", cardsAreOpened);
-    });
-
-    socket.on("toggleCardsAreOpened", () => {
-      cardsAreOpened = !cardsAreOpened;
-      pokerIo.emit("setCardsAreOpen", cardsAreOpened);
-    });
-
-    socket.on("removePlayers", () => {
-      pseudoBancoUsuarioPoker = [];
-      cardsAreOpened = false;
-
-      pokerIo.emit("backToRoomSelection");
-    });
-
-    socket.on("setPossibleCards", (data: string[]) => {
-      possibleCards = data;
-
-      pokerIo.emit("setPossibleCards", possibleCards);
-    });
+    addPlayerToGame(pokerIo, socket, roomId);
+    registerEvents(pokerIo, socket, roomId);
   });
+}
+
+function makeid(length: number): string {
+  let result = "";
+  const characters = "ABCDEFGHJKMNPQRSTUVWXYZ0123456789";
+  const charactersLength = characters.length;
+
+  for (let i = 0; i <= length; i += 1) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
+}
+
+function makeUniqueId(lenght: number, currentIds: string[]) {
+  const id = makeid(lenght);
+  if (currentIds.includes(id)) {
+    return makeUniqueId(lenght, currentIds);
+  }
+
+  return id;
 }

@@ -6,11 +6,16 @@ const URL = "http://localhost:3000";
 
 type getSocketParams = {
   path: string;
+  roomId: string;
 };
 
-export function getSocket({ path }: getSocketParams) {
+export function getSocket({ path, roomId }: getSocketParams) {
   return io(URL, {
     autoConnect: false,
     path,
+    extraHeaders: {
+      "room-id": roomId,
+    },
+    closeOnBeforeunload: true,
   });
 }

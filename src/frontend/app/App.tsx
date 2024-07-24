@@ -3,15 +3,18 @@ import { useNavigate } from "react-router-dom";
 
 function App() {
   const navigate = useNavigate();
-  const [error, setError] = useState();
+  const [error, setError] = useState("");
+  const [room, setRoom] = useState("");
+  const [roomId, setRoomId] = useState("");
 
   const entrar = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
-      const { room, name } = e.target as EventTarget & {
+      const { room, name, roomId } = e.target as EventTarget & {
         name: { value: string };
         room: { value: string };
+        roomId: { value: string };
       };
 
       const res = await fetch("http://localhost:3000/entrar", {
@@ -23,16 +26,17 @@ function App() {
         body: JSON.stringify({
           name: name.value,
           room: room.value,
+          roomId: roomId.value,
         }),
       });
 
       const result = await res.json();
 
       if (result?.error) {
-        return setError(result);
+        return setError(result.error);
       }
 
-      return navigate("/poker", { state: result });
+      return navigate(`/poker/${result.roomId}`, { state: result });
     },
     [navigate],
   );
@@ -54,14 +58,27 @@ function App() {
             placeholder="Seu nome na sala..."
             className="rounded-md p-1"
           />
+          <label htmlFor="roomId" className="text-slate-200">
+            Jogo em andamento:
+          </label>
+          <input
+            name="roomId"
+            type="text"
+            required={!room}
+            onChange={(e) => setRoomId(e.target.value)}
+            value={roomId}
+            placeholder="Digite identificador de uma sala em andamento..."
+            className="rounded-md p-1"
+          />
           <label htmlFor="room" className="text-slate-200">
             Sala:
           </label>
           <select
             name="room"
             id="room"
-            required
-            defaultValue={""}
+            required={!roomId}
+            onChange={(e) => setRoom(e.target.value)}
+            value={room}
             className="rounded-md p-1"
           >
             <option value=""></option>

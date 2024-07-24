@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     errorElement: <NotFoundPage />,
   },
   {
-    path: "/poker",
+    path: "/poker/:roomId",
     element: <Poker />,
     errorElement: <NotFoundPage />,
   },
