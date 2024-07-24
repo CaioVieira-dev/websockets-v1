@@ -42,9 +42,10 @@ function App() {
   );
 
   return (
-    <>
-      <div className="flex min-h-screen flex-col gap-4 bg-slate-900 px-16 py-16">
-        <h2 className="text-9xl text-slate-200">Entre em uma sala!!</h2>
+    <div className="min-h-screen bg-slate-900 py-16">
+      <div className="mx-auto flex h-full flex-col gap-4 px-4 max-xl:max-w-screen-sm min-[1280px]:max-w-screen-md">
+        <h2 className="text-7xl text-slate-200">Projeto WebSockets</h2>
+        <h4 className="mt-4 text-4xl text-slate-200">Entre em uma sala!</h4>
 
         {/* <Form method="post" onSubmit={entrar} className="flex flex-col gap-2"> */}
         <form method="post" className="flex flex-col gap-2" onSubmit={entrar}>
@@ -94,7 +95,7 @@ function App() {
         </form>
         {error && <div className="bg-red-300 p-2">{error}</div>}
       </div>
-    </>
+    </div>
   );
 }
 
